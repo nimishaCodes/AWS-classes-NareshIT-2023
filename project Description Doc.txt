@@ -1,0 +1,99 @@
+
+
+===============================
+=============================
+
+Project-1 : 
+
+
+1. Launch an ec2 instance (Launch Amazon Linux 2)
+2. Launch rds cluster 
+3. Configure ec2 instance to connect to rds
+
+
+yum install httpd -y
+service httpd start
+chkconfig httpd on
+
+
+Install mysql client
+
+==> sudo yum install -y mysql
+
+Export mysql endpoint with below command.
+export MYSQL_HOST=my-db.clymiq4hganm.us-east-2.rds.amazonaws.com
+
+export MYSQL_HOST=wordpress.cfpgnjehw330.ap-south-1.rds.amazonaws.com
+
+--
+Connect to mysql to create a db user
+
+mysql -h my-db.clymiq4hganm.us-east-2.rds.amazonaws.com -P 3306 -u admin -p
+
+--
+
+CREATE DATABASE mywebapp;
+
+CREATE TABLE customers (id INT(11) NOT NULL AUTO_INCREMENT,name VARCHAR(50) NOT NULL,email VARCHAR(50) NOT NULL,phone VARCHAR(20) NOT NULL,PRIMARY KEY (id));
+
+CREATE USER 'webappuser' IDENTIFIED BY 'test1234';
+GRANT ALL PRIVILEGES ON mywebapp.* TO webappuser;
+FLUSH PRIVILEGES;
+Exit
+
+--
+Install required dependencies:
+
+sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+
+
+After installing PHP in the webserver we need to execute the below commands to connect PHP and httpd. Failing to execute below will not start PHP in our webserver.
+
+vim /etc/httpd/conf/httpd.conf
+
+Add the following lines inside the <IfModule dir_module> section to tell Apache to process PHP files using PHP-FPM:
+
+DirectoryIndex index.php index.html
+AddType application/x-httpd-php .php
+
+sudo systemctl start php-fpm
+sudo systemctl restart httpd
+
+--
+
+cd /var/www/html/
+
+'vim info.php' and write below code/command to "info.php" file, save and close
+
+<?php phpinfo(); ?>
+
+Open browser and enter "INSTANCE-IP/info.php", this should display all php config information.
+
+--
+
+Now create an "index.html" below shared file/ below code.
+
+Refer the shared "index.html" and copy content and paste it here. 
+
+
+----
+
+Also, create another file name "submit.php" and paste the below content.
+
+Refer the shared "index.html" and copy content and paste it here. 
+
+** Replace 'rds-hostname', 'username', 'password', 'database'.
+
+---------
+
+
+Now access http://<your-instance-IP>/ instance, Fill the required information and submit. Data should store in mysql mywebapp.customer database.
+
+connect to rds cluster and execute below sql query to view all information you submitted from the webpage you created.
+
+
+mysql -h wordpress.cfpgnjehw330.ap-south-1.rds.amazonaws.com -P 3306 -u admin -p
+
+SELECT * from mywebapp.customers;
+
+
